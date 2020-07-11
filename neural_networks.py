@@ -12,18 +12,34 @@ class RNN(nn.Module):
         n_layers,
         dropout = 0.5
         ):
-        super().__init__()
+        """
+        """
+        super(RNN, self).__init__()
 
-
+        # set class variables
         self.vocab_size = vocab_size
         self.output_size = output_size
         self.embedding_dim = embedding_dim
         self.hidden_dim = hidden_dim
+        self.n_layers = n_layers
         self.drop_prob = dropout
 
+        # define layers
         self.embed = nn.Embedding(vocab_size, embedding_dim)
         self.lstm = nn.LSTM(embedding_dim, hidden_dim, n_layers, batch_first = True, dropout = dropout)
         
         self.fc1 = nn.Linear(hidden_dim, output_size)
 
         self.dropout = nn.Dropout(dropout)
+
+
+    def forward(self, x, hidden):
+
+
+        return out, hidden
+
+
+    def init_hidden(self, batch_size):
+
+
+        return None
