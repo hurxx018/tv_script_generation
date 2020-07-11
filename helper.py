@@ -53,3 +53,10 @@ def preprocess_and_save_data(
     pickle.dump((int_text, vocab_to_int, int_to_vocab, token_dict),
     open(output_path, 'wb'))
 
+def load_preprocess(
+    preprocessed_filename
+    ):
+    """ Load the preprocessed Training data and
+        Return them 
+    """
+    return pickle.load(open(preprocessed_filename, 'rb'))
