@@ -63,3 +63,49 @@ def test_create_lookup_table(
         "The length of vocab seems too small.  Found a length of {}".format(len(vocab_to_int))
 
     _print_success_message()
+
+
+def test_token_lookup(
+    token_lookup
+    ):
+    symbols = set(['.', ',', '"', ';', '!', '?', '(', ')', '-', '\n'])
+    token_dict = token_lookup()
+
+    # Check type
+    assert isinstance(token_dict, dict), \
+        "Returned type is {}.".format(type(token_dict))
+
+    # Check symbols
+    missing_symbols = symbols - set(token_dict.keys())
+    unknown_symbols = set(token_dict.keys()) - symbols
+
+    assert not missing_symbols, \
+        "Missing symbols are {}".format(missing_symbols)
+
+    assert not unknown_symbols, \
+        "Unknown symbols are {}".format(unknown_symbols)
+
+    # Check values type
+    bad_value_type = [type(v) for v in token_dict.values()
+        if not isinstance(v, str)]
+
+    # Check for spaces
+    key_has_spaces = [k for k in token_dict if ' ' in k]
+    val_has_spaces = [v for v in token_dict.values() if ' ' in v]
+
+    assert not key_has_spaces, \
+        "The key {} includes spaces. Remove spaces from keys and values".format(key_has_spaces[0])
+    assert not val_has_spaces, \
+        "The value {} includes spaces. Remove spaces from keys and values".format(val_has_spaces[0])
+
+    # Check for symbols in values
+    symbol_val = ()
+    for symbol in symbols:
+        for val in token_dict.values():
+            if symbol in val:
+                symbol_val = (symbol, val)
+
+    assert not symbol_val, \
+        "Do not use a symbol that will be replace in your tokens. Found the symbol {} in value {}".format(*symbol_val)
+
+    _print_success_message()
