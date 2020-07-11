@@ -103,3 +103,38 @@ def batch_data(
     data = TensorDataset(torch.from_numpy(x), torch.from_numpy(y))
     loader = DataLoader(data, shuffle = True, batch_size = batch_size)
     return loader
+
+
+
+def forward_back_prop(
+    rnn,
+    optimizer,
+    criterion,
+    inputs,
+    targets,
+    hidden,
+    train_on_gpu = False
+    ):
+    """ Define Forward and Backpropagation
+    """
+
+    # move data to GPU if available
+    if train_on_gpu:
+        inputs, targets = inputs.cuda(), targets.cuda()
+
+    # Creating new variables for the hidden state, otherwise
+    # we would backprop through the entire training history
+    hidden = tuple([h.data for h in hidden])
+
+    outputs, hidden = rnn(inputs, hidden)
+
+    loss = criterion(outputs, targets)
+
+    # perform backpropagation and optimization
+    optimizer.zero_grad()
+    loss.backward()
+    optimizer.step()
+
+    # return the loss over a bach and the hidden state
+    # produced by our model
+    return loss.item(), hidden
