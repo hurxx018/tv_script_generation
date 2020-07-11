@@ -38,7 +38,11 @@ class RNN(nn.Module):
         self.dropout = nn.Dropout(dropout)
 
 
-    def forward(self, nn_input, hidden):
+    def forward(
+        self, 
+        nn_input, 
+        hidden
+        ):
 
         batch_size, seq_length = nn_input.shape
         nn_input = nn_input.long()
