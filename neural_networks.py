@@ -1,5 +1,10 @@
-import torch.nn as nn
+import numpy as np
 
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
+
+from torch.utils.data import TensorDataset, DataLoader
 
 class RNN(nn.Module):
 
@@ -43,3 +48,25 @@ class RNN(nn.Module):
 
 
         return None
+
+def batch_data(
+    words, 
+    sequence_length,
+    batch_size
+    ):
+    """
+    """
+    words = np.asarray(words, dtype=int)
+
+    total_number_of_sequences = words.size - sequence_length
+
+    # Inputs and Targets
+    x = np.empty((total_number_of_sequences, sequence_length), dtype = words.dtype)
+    y = np.empty(total_number_of_sequences, dtype = words.dtype)
+    for i in range(words.size - sequence_length):
+        x[i, :] = words[i : i + sequence_length]
+        y[i]    = words[i + sequence_length]
+
+    data = TensorDataset(torch.from_numpy(x), torch.from_numpy(y))
+    loader = DataLoader(data, shuffle = True, batch_size = batch_size)
+    return loader
