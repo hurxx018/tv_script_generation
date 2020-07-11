@@ -38,16 +38,45 @@ class RNN(nn.Module):
         self.dropout = nn.Dropout(dropout)
 
 
-    def forward(self, x, hidden):
+    def forward(self, nn_input, hidden):
 
+        batch_size, seq_length = nn_input.shape
+        nn_input = nn_input.long()
+        x = self.embed(nn_input)
+        x, hidden = self.lstm(x, hidden)
+        x = x.contiguous().view(-1, self.hidden_dim)
+        out = self.fc1(x)
+        out = out.view(-1, seq_length, self.output_size)
+        # return one batch of output word scores and the hidden state
+        out = out[:, -1]
 
         return out, hidden
 
 
-    def init_hidden(self, batch_size):
+    def init_hidden(
+        self, 
+        batch_size, 
+        train_on_gpu = False
+        ):
+        """ Initialize hidden state of LSTM
+            two hidden states: hidden state and cell state of LSTM
+        """
+        weight = next(self.parameters()).data
+
+        if train_on_gpu:
+            hidden = (
+                weight.new(self.n_layers, batch_size, self.hidden_dim).zero_().cuda(),
+                weight.new(self.n_layers, batch_size, self.hidden_dim).zero_().cuda()
+            )
+        else:
+            hidden = (
+                weight.new(self.n_layers, batch_size, self.hidden_dim).zero_(),
+                weight.new(self.n_layers, batch_size, self.hidden_dim).zero_()
+            )
+
+        return hidden
 
 
-        return None
 
 def batch_data(
     words, 
