@@ -24,7 +24,15 @@ def preprocess_and_save_data(
     create_lookup_tables,
     output_path
     ):
-    """
+    """ Preprocess text data and Pickle the result
+        Arguments:
+        dataset_path: a filename of text
+        token_lookup: preprocess.token_lookup
+        create_lookup_tables: preprocess.create_lookup_tables
+        output_path: a picklefile name for the output
+
+        Returns:
+        None
     """
     SPECIAL_WORDS = {'PADDING': '<PAD>'}
 
@@ -44,3 +52,4 @@ def preprocess_and_save_data(
 
     pickle.dump((int_text, vocab_to_int, int_to_vocab, token_dict),
     open(output_path, 'wb'))
+
