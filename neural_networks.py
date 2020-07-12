@@ -89,7 +89,7 @@ def batch_data(
     ):
     """
     """
-    words = np.asarray(words, dtype=int)
+    words = np.asarray(words, dtype=np.int64)
 
     total_number_of_sequences = words.size - sequence_length
 
@@ -138,3 +138,45 @@ def forward_back_prop(
     # return the loss over a bach and the hidden state
     # produced by our model
     return loss.item(), hidden
+
+
+def train(
+    rnn,
+    train_loader,
+    batch_size,
+    optimizer,
+    criterion,
+    n_epochs,
+    show_every_n_batches = 100,
+    train_on_gpu = False
+    ):
+    """ Train
+    """
+    batch_losses = []
+
+    if train_on_gpu:
+        rnn.cuda()
+
+    rnn.train()
+    print("Training for {:d} epoch(s)...".format(n_epochs))
+    for epoch_i in range(1, n_epochs + 1):
+        # initialize hidden
+        hidden = rnn.init_hidden(batch_size, train_on_gpu)
+
+        for batch_i, (inputs, targets) in enumerate(train_loader, 1):
+
+            if len(inputs) != batch_size:
+                break
+            # forward and backpropagation
+            loss, hidden = forward_back_prop(rnn, optimizer, criterion, inputs, targets, hidden, train_on_gpu)
+            # record loss
+            batch_losses.append(loss)
+
+            # print loss stats
+            if (batch_i % show_every_n_batches == 0):
+                print("Epoch: {:>4}/{:<4}    Loss: {}\n".format(
+                    epoch_i, n_epochs, np.mean(batch_losses)
+                ))
+                batch_losses = []
+    # returns a trained rnn
+    return rnn
