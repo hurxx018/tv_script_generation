@@ -17,7 +17,14 @@ class RNN(nn.Module):
         n_layers,
         dropout = 0.5
         ):
-        """
+        """ Initialize RNN
+            Arguments:
+            vocab_size : Number of words in the vocabulary
+            output_size : Number of words in the vocabulary
+            embedding_dim : Dimension of Embedding Layer
+            hidden_dim : Dimension of hidden state of LSTM
+            n_layers : Number of Layers of LSTM
+            dropout : Probability of Dropout
         """
         super(RNN, self).__init__()
 
