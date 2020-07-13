@@ -124,7 +124,8 @@ def weights_init_normal(
 def batch_data(
     words, 
     sequence_length,
-    batch_size
+    batch_size, 
+    validation_fraction = 0.1
     ):
     """
     """
@@ -139,9 +140,22 @@ def batch_data(
         x[i, :] = words[i : i + sequence_length]
         y[i]    = words[i + sequence_length]
 
-    data = TensorDataset(torch.from_numpy(x), torch.from_numpy(y))
-    loader = DataLoader(data, shuffle = True, batch_size = batch_size)
-    return loader
+    n_train = np.round((1. - validation_fraction)*len(x)).astype(np.int64)
+    rng = np.random.default_rng()
+    choice = rng.choice(range(len(x)), size=(n_train,), replace=False)
+    ind = np.zeros(len(x), dtype=bool)
+    ind[choice] = True
+    rest = ~ind
+
+    train_x, train_y, valid_x, valid_y = x[ind], y[ind], x[rest], y[rest]
+
+    train_data = TensorDataset(torch.LongTensor(train_x), torch.LongTensor(train_y))
+    train_loader = DataLoader(train_data, shuffle = True, batch_size = batch_size)
+
+    valid_data = TensorDataset(torch.LongTensor(valid_x), torch.LongTensor(valid_y))
+    valid_loader = DataLoader(valid_data, shuffle = True, batch_size = batch_size)
+
+    return train_loader, valid_loader
 
 
 
