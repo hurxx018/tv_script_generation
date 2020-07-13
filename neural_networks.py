@@ -127,7 +127,18 @@ def batch_data(
     batch_size, 
     validation_fraction = 0.1
     ):
-    """
+    """ Generate batch_data: train_loader and valid_loader
+        Arguments
+        ---------
+        words: a sequence of words
+        sequence_length: Length of sequence
+        batch_size : Number of sequence per batch
+        validation_fraction : Portion of validation data
+
+        Returns
+        -------
+        train_loader
+        valid_loader
     """
     words = np.asarray(words, dtype=np.int64)
 
