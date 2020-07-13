@@ -50,7 +50,15 @@ class RNN(nn.Module):
         nn_input, 
         hidden
         ):
+        """ Forward
+            Arguments:
+            nn_input : input data with shape (Batch_size, sequence_length)
+            hidden : hidden state tuple of two elements
 
+            Returns:
+            outputs :
+            hidden  : hidden state
+        """
         batch_size, seq_length = nn_input.shape
         nn_input = nn_input.long()
         x = self.embed(nn_input)
