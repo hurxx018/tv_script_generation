@@ -95,10 +95,19 @@ class RNN(nn.Module):
 
         return hidden
 
-def weights_init_normal(
+def init_embedding(
     m
     ):
     """
+    """
+    classname = m.__class__.__name__
+    if classname.find("Embedding") != -1:
+        m.weight.data.uniform_(-1, 1)
+
+def weights_init_normal(
+    m
+    ):
+    """ Initialize weights of Linear layer with normal distribution
     """
     classname = m.__class__.__name__
 
@@ -107,6 +116,10 @@ def weights_init_normal(
         y = 1./np.sqrt(n)
         m.weight.data.normal_(0, y)
         m.bias.data.fill_(0)
+    else if classname.find('Embedding') != -1:
+        n, _ = m.weight.shape
+        y = 1./np.sqrt(n)
+        m.weight.data.normal_(0, y)
 
 def batch_data(
     words, 
