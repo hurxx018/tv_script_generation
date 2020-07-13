@@ -116,7 +116,7 @@ def weights_init_normal(
         y = 1./np.sqrt(n)
         m.weight.data.normal_(0, y)
         m.bias.data.fill_(0)
-    else if classname.find('Embedding') != -1:
+    elif classname.find('Embedding') != -1:
         n, _ = m.weight.shape
         y = 1./np.sqrt(n)
         m.weight.data.normal_(0, y)
