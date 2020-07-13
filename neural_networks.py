@@ -95,7 +95,18 @@ class RNN(nn.Module):
 
         return hidden
 
+def weights_init_normal(
+    m
+    ):
+    """
+    """
+    classname = m.__class__.__name__
 
+    if classname.find('Linear') != -1:
+        n = m.in_features
+        y = 1./np.sqrt(n)
+        m.weight.data.normal_(0, y)
+        m.bias.data.fill_(0)
 
 def batch_data(
     words, 
