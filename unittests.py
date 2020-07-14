@@ -2,6 +2,21 @@ import numpy as np
 
 import torch
 
+
+
+class AssertTest(object):
+
+    def __init__(self, params):
+        if not isinstance(params, dict):
+            raise TypeError("Type of params is Dictionary")
+        self.assert_param_message = "\n".join([
+            str(k) + ": " + str(v) + "" for k, v in params.items()
+        ])
+
+    def test(self, assert_condition, assert_message):
+        assert assert_condition, assert_message + "\n\nUnit Test Function Parameters\n" + self.assert_param_message
+
+
 def _print_success_message():
     print('Tests Passed')
 
