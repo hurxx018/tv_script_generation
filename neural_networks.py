@@ -95,15 +95,6 @@ class RNN(nn.Module):
 
         return hidden
 
-def init_embedding(
-    m
-    ):
-    """
-    """
-    classname = m.__class__.__name__
-    if classname.find("Embedding") != -1:
-        m.weight.data.uniform_(-1, 1)
-
 def weights_init_normal(
     m
     ):
