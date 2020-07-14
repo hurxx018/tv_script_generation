@@ -158,3 +158,25 @@ def test_batch_data(
     print()
 
 
+def test_rnn(RNN, train_on_gpu):
+    batch_size = 50
+    sequence_length = 3
+    vocab_size = 20
+    output_size = 20
+    embedding_dim = 15
+    hidden_dim = 10
+    n_layers = 2
+
+    # Create test RNN
+    # params: (vocab_size, output_size, embedding_dim, hidden_dim, n_layers)
+    rnn = RNN(vocab_size, output_size, embedding_dim, hidden_dim, n_layers)
+
+    # create test input
+    a = np.random.randint(vocab_size, size=(batch_size, sequence_length))
+    b = torch.from_numpy(a)
+    hidden = rnn.init_hidden(batch_size, train_on_gpu)
+    if train_on_gpu:
+        rnn.cuda()
+        b = b.cuda()
+
+    output, hidden_out = rnn(b, hidden)
