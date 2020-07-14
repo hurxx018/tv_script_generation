@@ -240,31 +240,28 @@ def train(
 
             # print training loss stats and evaluate the validation set.
             if (batch_i % show_every_n_batches == 0):
-                print("Epoch: {:>4}/{:<4}    Train_Loss: {}\n".format(
-                    epoch_i, n_epochs, np.mean(batch_losses)
-                ))
-                batch_losses = []
 
                 # Evaluate the Validation dataset
                 rnn.eval()
                 valid_losses = []
                 valid_hidden = rnn.init_hidden(batch_size, train_on_gpu)
-                for valid_batch_j, (valid_inputs, valid_targets) in enumerate(valid_loader, 1):
+                for valid_batch_j, (inputs, targets) in enumerate(valid_loader, 1):
                     # Make sure that the size of valid_inputs equals batch_size.
-                    if len(valid_inputs) != batch_size:
+                    if len(inputs) != batch_size:
                         break
                     if train_on_gpu:
-                        valid_inputs, valid_targets = valid_inputs.cuda(), valid_targets.cuda()
+                        inputs, targets = inputs.cuda(), targets.cuda()
 
                     valid_hidden = tuple([h.data for h in valid_hidden])
-                    valid_outputs, valid_hidden = rnn(valid_inputs, valid_hidden)
-                    valid_loss = criterion(valid_outputs, valid_targets)
+                    outputs, valid_hidden = rnn(inputs, valid_hidden)
+                    loss = criterion(outputs, targets)
 
-                    valid_losses.append(valid_loss.item)
+                    valid_losses.append(loss.item())
 
-                print("Epoch: {:>4}/{:<4}    Valid_Loss: {}\n".format(
-                    epoch_i, n_epochs, np.mean(valid_losses)
-                ))                
+                print("Epoch: {:>4}/{:<4}....Step: {}....Train_Loss: {}....Valid_Loss: {}\n".format(
+                    epoch_i, n_epochs, batch_i, np.mean(batch_losses), np.mean(valid_losses)
+                ))
+                batch_losses = []                
                 rnn.train()
 
     # returns a trained rnn
