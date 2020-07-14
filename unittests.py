@@ -1,3 +1,6 @@
+import numpy as np
+
+import torch
 
 def _print_success_message():
     print('Tests Passed')
@@ -111,17 +114,32 @@ def test_token_lookup(
     _print_success_message()
 
 
-def test_batch_data(batch_data):
+def test_batch_data(
+    batch_data
+    ):
+
     print("\n\nTesting batch_data\n")
-    test_text = list(range(50))
-    t_loader = batch_data(test_text, sequence_length=5, batch_size=10)
+    test_text = list(range(500))
+    t_loader, v_loader = batch_data(test_text, sequence_length=5, batch_size=10)
 
     dataiter = iter(t_loader)
     sample_x, sample_y = dataiter.next()
-
+    print("/nTraining Set/n")
     print(sample_x.shape)
     print(sample_x)
     print()
     print(sample_y.shape)
     print(sample_y)
     print()
+
+    dataiter = iter(v_loader)
+    sample_x, sample_y = dataiter.next()
+    print("/nValidation Set/n")
+    print(sample_x.shape)
+    print(sample_x)
+    print()
+    print(sample_y.shape)
+    print(sample_y)
+    print()
+
+
