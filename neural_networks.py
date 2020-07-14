@@ -207,6 +207,7 @@ def forward_back_prop(
 def train(
     rnn,
     train_loader,
+    valid_loader,
     batch_size,
     optimizer,
     criterion,
@@ -242,5 +243,8 @@ def train(
                     epoch_i, n_epochs, np.mean(batch_losses)
                 ))
                 batch_losses = []
+
+                # TODO: validation steps, arguments > valid_loader
+                # 
     # returns a trained rnn
     return rnn
