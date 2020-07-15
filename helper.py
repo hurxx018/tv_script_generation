@@ -55,6 +55,8 @@ def preprocess_and_save_data(
     pickle.dump((int_text, vocab_to_int, int_to_vocab, token_dict),
     open(output_path, 'wb'))
 
+
+
 def load_preprocess(
     preprocessed_filename
     ):
@@ -70,6 +72,13 @@ def save_rnn_model(
     decoder
     ):
     """ Save RNN model
+        Arguments
+        ---------
+        filename : checkpoint filename
+        decoder : RNN model
+
+        Returns:
+        None
     """
     checkpoint = {
         "vocab_size"    : decoder.vocab_size,
@@ -83,10 +92,18 @@ def save_rnn_model(
     save_filename = os.path.splitext(os.path.basename(filename))[0] + '.pt'
     torch.save(checkpoint, save_filename)
 
+
 def load_rnn_model(
     filename
     ):
     """ Load RNN model
+        Arguments
+        ---------
+        filename : checkpoint filename
+
+        Returns
+        -------
+        decoder : RNN 
     """
     load_filename = os.path.splitext(os.path.basename(filename))[0] + '.pt'
 
