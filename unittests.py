@@ -260,3 +260,18 @@ def test_forward_back_prop(
         hidden = rnn.init_hidden(batch_size)
 
         loss, hidden_out = forward_back_prop(mock_decoder,mock_decoder_optimizer, mock_criterion, inputs, targets, hidden)
+
+    if isinstance(hidden, tuple):
+        # LSTM
+        assert (hidden_out[0][0] == hidden[0][0]).sum() == batch_size*hidden_dim, "Returned hidden state is the incorrect size."
+    else:
+        # GRU
+        assert (hidden_out[0] == hidden[0]).sum() == batch_size*hidden_dim, "Returned hidden state is the incorrect size."
+
+    assert mock_decoder.zero_grad.called or mock_decoder_optimizer.zero_grad.called, "Did not set the gradients to 0."
+    assert mock_decoder.forward_called, "Forward propagation not called."
+    assert mock_autograd_backward.called, "Backward propagation not called."
+    assert mock_decoder_optimizer.step.called, "Optimization step not performed."
+    assert isinstance(loss, float), "Wrong return type. Expected {}, got {}".format(float, type(loss))
+
+    _print_success_message()
