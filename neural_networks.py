@@ -168,6 +168,7 @@ def forward_back_prop(
     inputs,
     targets,
     hidden,
+    clip,
     train_on_gpu = False
     ):
     """ Define Forward and Backpropagation
@@ -188,6 +189,10 @@ def forward_back_prop(
     # perform backpropagation and optimization
     optimizer.zero_grad()
     loss.backward()
+
+    # 'clip_grad_norm' helps prevent the exploding gradient problem
+    # in RNNs
+    nn.utils.clip_grad_norm_(rnn.parameters(), clip)
     optimizer.step()
 
     # return the loss over a bach and the hidden state
@@ -203,6 +208,7 @@ def train(
     optimizer,
     criterion,
     n_epochs,
+    clip = 5.,
     show_every_n_batches = 100,
     train_on_gpu = False
     ):
@@ -225,7 +231,7 @@ def train(
             if len(inputs) != batch_size:
                 break
             # forward and backpropagation
-            loss, hidden = forward_back_prop(rnn, optimizer, criterion, inputs, targets, hidden, train_on_gpu)
+            loss, hidden = forward_back_prop(rnn, optimizer, criterion, inputs, targets, hidden, clip, train_on_gpu)
             # record loss
             batch_losses.append(loss)
 
