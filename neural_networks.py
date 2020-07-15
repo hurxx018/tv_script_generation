@@ -210,7 +210,8 @@ def train(
     n_epochs,
     clip = 5.,
     show_every_n_batches = 100,
-    train_on_gpu = False
+    train_on_gpu = False,
+    savecheckpoint = None
     ):
     """ Train
     """
@@ -220,6 +221,7 @@ def train(
         rnn.cuda()
 
     rnn.train()
+    min_validation_loss = np.Infinity
     print("Training for {:d} epoch(s)...".format(n_epochs))
     for epoch_i in range(1, n_epochs + 1):
         # initialize hidden
@@ -255,11 +257,77 @@ def train(
 
                     valid_losses.append(loss.item())
 
-                print("Epoch: {:>4}/{:<4}....Step: {}....Train_Loss: {}....Valid_Loss: {}\n".format(
-                    epoch_i, n_epochs, batch_i, np.mean(batch_losses), np.mean(valid_losses)
+                mean_valid_losses = np.mean(valid_losses)
+                print("Epoch: {:>4}/{:<4}....Step: {}....Train_Loss: {}....Valid_Loss: {}....Min Valid Loss: {}\n".format(
+                    epoch_i, n_epochs, batch_i, np.mean(batch_losses), mean_valid_losses, min_validation_loss
                 ))
+
+                if min_validation_loss > mean_valid_losses:
+                    min_validation_loss = mean_valid_losses
+                    if isinstance(savecheckpoint, str):
+                        print("Saving the RNN model.\n")
+                        save_rnn_model(savecheckpoint, rnn)
+
+
                 batch_losses = []                
                 rnn.train()
 
     # returns a trained rnn
     return rnn
+
+
+
+def save_rnn_model(
+    filename, 
+    decoder
+    ):
+    """ Save RNN model
+        Arguments
+        ---------
+        filename : checkpoint filename
+        decoder : RNN model
+
+        Returns:
+        None
+    """
+    checkpoint = {
+        "vocab_size"    : decoder.vocab_size,
+        "output_size"   : decoder.output_size,
+        "hidden_dim"    : decoder.hidden_dim,
+        "embedding_dim" : decoder.embedding_dim,
+        "n_layers"      : decoder.n_layers,
+        "drop_prob"     : decoder.drop_prob,
+        "state_dict"    : decoder.state_dict()
+        }
+    save_filename = os.path.splitext(os.path.basename(filename))[0] + '.pt'
+    torch.save(checkpoint, save_filename)
+
+
+def load_rnn_model(
+    filename
+    ):
+    """ Load RNN model
+        Arguments
+        ---------
+        filename : checkpoint filename
+
+        Returns
+        -------
+        decoder : RNN 
+    """
+    load_filename = os.path.splitext(os.path.basename(filename))[0] + '.pt'
+
+    with open(load_filename, 'rb') as f:
+        checkpoint = torch.load(load_filename)
+
+    decoder = RNN(
+        checkpoint["vocab_size"],
+        checkpoint["output_size"],
+        checkpoint["hidden_dim"],
+        checkpoint["embedding_dim"],
+        checkpoint["n_layers"],
+        checkpoint["drop_prob"]
+        )
+
+    decoder.load_state_dict(checkpoint["state_dict"])
+    return decoder
