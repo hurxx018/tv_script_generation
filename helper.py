@@ -1,6 +1,8 @@
 import os
 import pickle
+import torch
 
+from neural_networks import RNN
 
 def load_data(
     filename
@@ -60,3 +62,45 @@ def load_preprocess(
         Return them 
     """
     return pickle.load(open(preprocessed_filename, 'rb'))
+
+
+
+def save_rnn_model(
+    filename, 
+    decoder
+    ):
+    """ Save RNN model
+    """
+    checkpoint = {
+        "vocab_size"    : decoder.vocab_size,
+        "output_size"   : decoder.output_size,
+        "hidden_dim"    : decoder.hidden_dim,
+        "embedding_dim" : decoder.embedding_dim,
+        "n_layers"      : decoder.n_layers,
+        "drop_prob"     : decoder.drop_prob,
+        "state_dict"    : decoder.state_dict()
+        }
+    save_filename = os.path.splitext(os.path.basename(filename))[0] + '.pt'
+    torch.save(checkpoint, save_filename)
+
+def load_rnn_model(
+    filename
+    ):
+    """ Load RNN model
+    """
+    load_filename = os.path.splitext(os.path.basename(filename))[0] + '.pt'
+
+    with open(load_filename, 'rb') as f:
+        checkpoint = torch.load(load_filename)
+
+    decoder = RNN(
+        checkpoint["vocab_size"],
+        checkpoint["output_size"],
+        checkpoint["hidden_dim"],
+        checkpoint["embedding_dim"],
+        checkpoint["n_layers"],
+        checkpoint["drop_prob"]
+        )
+
+    decoder.load_state_dict(checkpoint["state_dict"])
+    return decoder
