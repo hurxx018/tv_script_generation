@@ -15,7 +15,7 @@ class _TestNN(torch.nn.Module):
         output = self.decoder(nn_input)
 
         return output, hidden
-        
+
 
 class AssertTest(object):
 
@@ -241,3 +241,22 @@ def test_forward_back_prop(
 
     # create test RNN
     rnn = RNN(input_size, output_size, embedding_dim, hidden_dim, n_layers)
+
+    mock_decoder = MagicMock(wraps = _TestNN(input_size, output_size))
+    if train_on_gpu:
+        mock_decoder.cuda()
+
+    mock_decoder_optimizer = MagicMock(wraps = torch.optim.Adam(mock_decoder.parameters(), lr=learning_rate))
+    mock_criterion = MagicMock(wraps = torch.nn.CrossEntropyLoss())
+
+    with patch.object(torch.autograd, 'backward', wraps = torch.autograd.backward) as mock_autograd_backward:
+        rng = np.random.default_rng()
+        inputs = torch.FloatTensor(rng.random((batch_size, input_size)))
+        targets = torch.LongTensor(rng.integers(0, output_size, size=batch_size))
+
+        if train_on_gpu:
+            inputs, targets = inputs.cuda(), targets.cuda()
+
+        hidden = rnn.init_hidden(batch_size)
+
+        loss, hidden_out = forward_back_prop(mock_decoder,mock_decoder_optimizer, mock_criterion, inputs, targets, hidden)
