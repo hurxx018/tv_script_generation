@@ -237,6 +237,7 @@ def test_forward_back_prop(
     embedding_dim = 15
     hidden_dim = 10
     n_layers = 2
+    clip = 5.
     learning_rate = 0.01
 
     # create test RNN
@@ -259,7 +260,7 @@ def test_forward_back_prop(
 
         hidden = rnn.init_hidden(batch_size)
 
-        loss, hidden_out = forward_back_prop(mock_decoder,mock_decoder_optimizer, mock_criterion, inputs, targets, hidden)
+        loss, hidden_out = forward_back_prop(mock_decoder,mock_decoder_optimizer, mock_criterion, inputs, targets, hidden, clip, train_on_gpu)
 
     if isinstance(hidden, tuple):
         # LSTM
