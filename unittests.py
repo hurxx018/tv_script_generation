@@ -190,9 +190,18 @@ def test_rnn(RNN, train_on_gpu):
         "Input" : b
     })
 
-    # initialization
+    # hidden state initialization
     correct_hidden_size = (n_layers, batch_size, hidden_dim)
 
     if isinstance(hidden, tuple):
         # LSTM
         assert_condition = hidden[0].size() == correct_hidden_size
+        assert_message = "Wrong hidden state size. Expected type {}. Got type {}".format(correct_hidden_size, hidden[0].size())
+    else:
+        # GRU
+        assert_condition = hidden.size() == correct_hidden_size
+        assert_message = "Wrong hidden state size. Expected type {}. Got type {}".format(correct_hidden_size, hidden.size())
+
+    assert_test.test(assert_condition, assert_message)
+
+    
