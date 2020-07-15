@@ -204,4 +204,11 @@ def test_rnn(RNN, train_on_gpu):
 
     assert_test.test(assert_condition, assert_message)
 
-    
+    # output of rnn
+    correct_output_size = (batch_size, output_size)
+    assert_condition = (output.size() == correct_output_size)
+    assert_message = "Wrong output size. Expected type {}. Got type {}".format(correct_output_size, output.size())
+    assert_test.test(assert_condition, assert_message)
+
+    _print_success_message()
+
