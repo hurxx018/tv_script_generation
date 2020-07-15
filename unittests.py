@@ -1,8 +1,21 @@
+from unittest.mock import MagicMock, patch
+
 import numpy as np
 
 import torch
 
+class _TestNN(torch.nn.Module):
+    def __init__(self, input_size, output_size):
+        super(_TestNN, self).__init__()
+        self.decoder = torch.nn.Linear(input_size, output_size)
+        self.forward_called = False
 
+    def forward(self, nn_input, hidden):
+        self.forward_called = True
+        output = self.decoder(nn_input)
+
+        return output, hidden
+        
 
 class AssertTest(object):
 
@@ -212,3 +225,19 @@ def test_rnn(RNN, train_on_gpu):
 
     _print_success_message()
 
+def test_forward_back_prop(
+    RNN,
+    forward_back_prop,
+    train_on_gpu
+    ):
+    batch_size = 200
+    input_size = 20
+    output_size = 10
+    sequence_length = 5
+    embedding_dim = 15
+    hidden_dim = 10
+    n_layers = 2
+    learning_rate = 0.01
+
+    # create test RNN
+    rnn = RNN(input_size, output_size, embedding_dim, hidden_dim, n_layers)
