@@ -180,3 +180,19 @@ def test_rnn(RNN, train_on_gpu):
         b = b.cuda()
 
     output, hidden_out = rnn(b, hidden)
+
+    assert_test = AssertTest({
+        "Input Size"  : vocab_size,
+        "Output Size" : output_size,
+        "Hidden Dim"  : hidden_dim,
+        "N Layers"    : n_layers,
+        "Sequence Length" : sequence_length,
+        "Input" : b
+    })
+
+    # initialization
+    correct_hidden_size = (n_layers, batch_size, hidden_dim)
+
+    if isinstance(hidden, tuple):
+        # LSTM
+        assert_condition = hidden[0].size() == correct_hidden_size
