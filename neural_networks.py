@@ -333,3 +333,15 @@ def load_rnn_model(
 
     decoder.load_state_dict(checkpoint["state_dict"])
     return decoder
+
+
+def generate(
+    rnn,
+    prime_id,
+    int_to_vocab,
+    token_dict,
+    pad_value,
+    predict_len = 100,
+    train_on_gpu = False
+    ):
+    """"""
