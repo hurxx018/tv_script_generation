@@ -346,7 +346,24 @@ def generate(
     topk_value = 5,
     train_on_gpu = False
     ):
-    """"""
+    """ Generate a script
+        Arguments
+        ---------
+        rnn :
+        sequence_length
+        prime_id
+        int_to_vocab
+        token_dict
+        pad_value
+        predict_len : a length of a generated script.
+        topk_value
+        train_on_gpu
+
+
+        Returns
+        --------
+        gen_sentences : 
+    """
 
     if train_on_gpu:
         rnn.cuda()
