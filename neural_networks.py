@@ -385,7 +385,7 @@ def generate(
         if train_on_gpu:
             current_seq = current_seq.cuda()
 
-        hidden = tuple([h.data for h in hidden])
+        hidden = tuple([h.detach() for h in hidden])
 
         output, hidden = rnn(current_seq, hidden)
             
