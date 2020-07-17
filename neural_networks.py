@@ -372,7 +372,7 @@ def generate(
 
         output, hidden = rnn(current_seq, hidden)
             
-        # get
+        # get the word probabilities
         p = F.softmax(output, dim = 1)
 
         if train_on_gpu:
@@ -385,7 +385,7 @@ def generate(
         p = p.detach().numpy().squeeze()
         word_i = np.random.choice(top_i, p=p/p.sum())
 
-        #
+        # Get the encoded value
         word = int_to_vocab[word_i]
         predicted.append(word)
 
