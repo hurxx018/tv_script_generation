@@ -362,4 +362,47 @@ def generate(
     hidden = rnn.init_hidden(1)
 
     for _ in range(predict_len):
-        pass
+
+
+        current_seq = torch.LongTensor(current_seq)
+        if train_on_gpu:
+            current_seq = current_seq.cuda()
+
+        hidden = tuple([h.data for h in hidden])
+
+        output, hidden = rnn(current_seq, hidden)
+            
+        # get
+        p = F.softmax(output, dim = 1)
+
+        if train_on_gpu:
+            p = p.cpu()
+
+        p, top_i = p.topk(topk_value)
+        top_i = top_i.numpy().squeeze()
+
+        # select the likely next word with some element of randomness
+        p = p.detach().numpy().squeeze()
+        word_i = np.random.choice(top_i, p=p/p.sum())
+
+        #
+        word = int_to_vocab[word_i]
+        predicted.append(word)
+
+        if train_on_gpu:
+            current_seq = current_seq.cpu()
+
+        current_seq = np.roll(current_seq, -1, 1)
+        current_seq[-1][-1] = word_i
+
+    gen_sentences = ' '.join(predicted)
+
+    # Replace punctuation tokens
+    for key, token in token_dict.items():
+        ending = ' ' if key in ['\n', '(', '"'] else ''
+        gen_sentences = gen_sentences.replace(' ' + token.lower(), key)
+    gen_sentences = gen_sentences.replace('\n ', '\n')
+    gen_sentences = gen_sentences.replace('( ', '(')
+    
+    # return all the sentences
+    return gen_sentences    
