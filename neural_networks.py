@@ -337,11 +337,29 @@ def load_rnn_model(
 
 def generate(
     rnn,
+    sequence_length,
     prime_id,
     int_to_vocab,
     token_dict,
     pad_value,
     predict_len = 100,
+    topk_value = 5,
     train_on_gpu = False
     ):
     """"""
+
+    if train_on_gpu:
+        rnn.cuda()
+    else:
+        rnn.cpu()
+
+    rnn.eval()
+
+    current_seq = np.full((1, sequence_length), pad_value)
+    current_seq[-1][-1] = prime_id
+    predicted = [int_to_vocab[prime_id]]
+
+    hidden = rnn.init_hidden(1)
+
+    for _ in range(predict_len):
+        pass
