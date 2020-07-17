@@ -182,7 +182,7 @@ def forward_back_prop(
 
     # Creating new variables for the hidden state, otherwise
     # we would backprop through the entire training history
-    hidden = tuple([h.data for h in hidden])
+    hidden = tuple([h.detach() for h in hidden])
 
     outputs, hidden = rnn(inputs, hidden)
 
@@ -246,23 +246,24 @@ def train(
                 rnn.eval()
                 valid_losses = []
                 valid_hidden = rnn.init_hidden(batch_size, train_on_gpu)
-                for valid_batch_j, (inputs, targets) in enumerate(valid_loader, 1):
-                    # Make sure that the size of valid_inputs equals batch_size.
-                    if len(inputs) != batch_size:
-                        break
-                    if train_on_gpu:
-                        inputs, targets = inputs.cuda(), targets.cuda()
+                with torch.no_grad():
+                    for valid_batch_j, (inputs, targets) in enumerate(valid_loader, 1):
+                        # Make sure that the size of valid_inputs equals batch_size.
+                        if len(inputs) != batch_size:
+                            break
+                        if train_on_gpu:
+                            inputs, targets = inputs.cuda(), targets.cuda()
 
-                    valid_hidden = tuple([h.data for h in valid_hidden])
-                    outputs, valid_hidden = rnn(inputs, valid_hidden)
-                    loss = criterion(outputs, targets)
+                        valid_hidden = tuple([h.detach() for h in valid_hidden])
+                        outputs, valid_hidden = rnn(inputs, valid_hidden)
+                        loss = criterion(outputs, targets)
 
-                    valid_losses.append(loss.item())
+                        valid_losses.append(loss.item())
 
-                mean_valid_losses = np.mean(valid_losses)
-                print("Epoch: {:>4}/{:<4}....Step: {}....Train_Loss: {}....Valid_Loss: {}....Min Valid Loss: {}\n".format(
-                    epoch_i, n_epochs, batch_i, np.mean(batch_losses), mean_valid_losses, min_validation_loss
-                ))
+                    mean_valid_losses = np.mean(valid_losses)
+                    print("Epoch: {:>4}/{:<4}....Step: {}....Train_Loss: {}....Valid_Loss: {}....Min Valid Loss: {}\n".format(
+                        epoch_i, n_epochs, batch_i, np.mean(batch_losses), mean_valid_losses, min_validation_loss
+                    ))
 
                 if min_validation_loss > mean_valid_losses:
                     min_validation_loss = mean_valid_losses
@@ -378,39 +379,40 @@ def generate(
 
     hidden = rnn.init_hidden(1)
 
-    for _ in range(predict_len):
+    with torch.no_grad():
+        for _ in range(predict_len):
 
 
-        current_seq = torch.LongTensor(current_seq)
-        if train_on_gpu:
-            current_seq = current_seq.cuda()
+            current_seq = torch.LongTensor(current_seq)
+            if train_on_gpu:
+                current_seq = current_seq.cuda()
 
-        hidden = tuple([h.detach() for h in hidden])
+            hidden = tuple([h.detach() for h in hidden])
 
-        output, hidden = rnn(current_seq, hidden)
-            
-        # get the word probabilities
-        p = F.softmax(output, dim = 1)
+            output, hidden = rnn(current_seq, hidden)
+                
+            # get the word probabilities
+            p = F.softmax(output, dim = 1)
 
-        if train_on_gpu:
-            p = p.cpu()
+            if train_on_gpu:
+                p = p.cpu()
 
-        p, top_i = p.topk(topk_value)
-        top_i = top_i.numpy().squeeze()
+            p, top_i = p.topk(topk_value)
+            top_i = top_i.numpy().squeeze()
 
-        # select the likely next word with some element of randomness
-        p = p.detach().numpy().squeeze()
-        word_i = np.random.choice(top_i, p=p/p.sum())
+            # select the likely next word with some element of randomness
+            p = p.detach().numpy().squeeze()
+            word_i = np.random.choice(top_i, p=p/p.sum())
 
-        # Get the encoded value
-        word = int_to_vocab[word_i]
-        predicted.append(word)
+            # Get the encoded value
+            word = int_to_vocab[word_i]
+            predicted.append(word)
 
-        if train_on_gpu:
-            current_seq = current_seq.cpu()
+            if train_on_gpu:
+                current_seq = current_seq.cpu()
 
-        current_seq = np.roll(current_seq, -1, 1)
-        current_seq[-1][-1] = word_i
+            current_seq = np.roll(current_seq, -1, 1)
+            current_seq[-1][-1] = word_i
 
     gen_sentences = ' '.join(predicted)
 
