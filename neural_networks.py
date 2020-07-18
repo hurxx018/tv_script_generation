@@ -174,6 +174,18 @@ def forward_back_prop(
     train_on_gpu = False
     ):
     """ Define Forward and Backpropagation
+        rnn :
+        optimizer :
+        criterion : CrossEntropyLoss
+        inputs :
+        targets :
+        hidden  :
+        clip    :
+        train_on_gpu :
+
+        Returns:
+        loss value :
+        hidden :
     """
 
     # move data to GPU if available
@@ -260,10 +272,10 @@ def train(
 
                         valid_losses.append(loss.item())
 
-                    mean_valid_losses = np.mean(valid_losses)
-                    print("Epoch: {:>4}/{:<4}....Step: {}....Train_Loss: {}....Valid_Loss: {}....Min Valid Loss: {}\n".format(
-                        epoch_i, n_epochs, batch_i, np.mean(batch_losses), mean_valid_losses, min_validation_loss
-                    ))
+                mean_valid_losses = np.mean(valid_losses)
+                print("Epoch: {:>4}/{:<4}....Step: {}....Train_Loss: {}....Valid_Loss: {}....Min Valid Loss: {}\n".format(
+                    epoch_i, n_epochs, batch_i, np.mean(batch_losses), mean_valid_losses, min_validation_loss
+                ))
 
                 if min_validation_loss > mean_valid_losses:
                     min_validation_loss = mean_valid_losses
