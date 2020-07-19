@@ -256,6 +256,11 @@ def train(
         hidden = rnn.init_hidden(batch_size, train_on_gpu)
 
         for batch_i, (inputs, targets) in enumerate(train_loader, 1):
+
+            # initialize hidden: Each batch consists of sequence which are randomly selected. 
+            # No memory is required from a batch to a next batch.
+            hidden = rnn.init_hidden(batch_size, train_on_gpu)
+
             # Make sure that the size of inputs equals batch_size.
             # otherwise, the size of hidden state does not match to the size of inputs.
             if len(inputs) != batch_size:
