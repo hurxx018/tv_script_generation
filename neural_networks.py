@@ -227,7 +227,21 @@ def train(
     train_on_gpu = False,
     savecheckpoint = None
     ):
-    """ Train
+    """ Train the model
+        Arguments:
+        rnn :
+        train_loader :
+        valid_loader :
+        optimizer :
+        criterion : CrossEntropyLoss()
+        n_epochs :
+        clip :
+        show_every_n_batches :
+        train_on_gpu :
+        savecheckpoint :
+
+        Returns:
+        rnn
     """
     batch_losses = []
 
